@@ -1,1 +1,16 @@
-Hello world! This is the upload form.
+<h1>
+    This is upload.html
+</h1>
+{% from "_formhelpers.html" import render_field %}
+<form method="post">
+    {{ render_field(form.id) }}
+    {{ render_field(form.title) }}
+    {{ render_field(form.deliveryDate) }}
+    {{ render_field(form.filePath) }}
+    {{ render_field(form.passage) }}
+    {{ render_field(form.speaker) }}
+    {{ render_field(form.event) }}
+    {{ render_field(form.series) }}
+    {{ render_field(form.reference) }}
+    <button type="submit">Submit</button>
+</form>

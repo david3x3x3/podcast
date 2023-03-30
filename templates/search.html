@@ -1,0 +1,25 @@
+<h1>
+    This is search.html
+</h1>
+{% from "_formhelpers.html" import render_field %}
+<form method="post">
+    {{ form.speaker.label }}
+    {{ form.speaker }} <br/><br/>
+
+    {{ form.event.label }}
+    {{ form.event }} <br/><br/>
+
+    {{ form.date_before.label }}
+    {{ form.date_before }} <br/><br/>
+
+    {{ form.date_after.label }}
+    {{ form.date_after }} <br/><br/>
+
+    {{ form.passage.label }}
+    {{ form.passage }} <br/><br/>
+
+    {{ form.series.label }}
+    {{ form.series }} <br/><br/>
+
+    <button type="submit">Submit</button>
+</form>
