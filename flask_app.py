@@ -79,6 +79,14 @@ def search():
         if event_id != 0:
             a1 = a1.where(audio.event == event_id)
 
+        series_id = int(request.form['series'])
+        if series_id != 0:
+            a1 = a1.where(audio.series == series_id)
+
+        passage = request.form['passage'].strip()
+        if passage != '':
+            a1 = a1.where(audio.passage == passage)
+
         date_before = request.form['date_before']
         if date_before != '':
             a1 = a1.filter(audio.deliveryDate < date_before)
@@ -94,6 +102,7 @@ def search():
     choices = [('0','All')]
     for s1 in session.query(audio_speaker).all():
         choices += [(str(s1.id), s1.name)]
+    choices.sort(key=lambda a: a[1])
     form.speaker.choices = choices
 
     choices = [('0','All')]
@@ -114,9 +123,9 @@ def search():
         choices += [(p1,p1)]
     form.passage.choices = choices
 
-    choices = [('0','All')]
-    for se1 in session.query(audio_series).all():
-        choices += [(str(se1.id), se1.series)]
+    choices = [(str(se1.id), se1.series) for se1 in session.query(audio_series).all()]
+    choices.sort(key=lambda a: a[1])
+    choices = [('0','All')] + choices
     form.series.choices = choices
 
     return render_template('search.html', form=form)
