@@ -52,7 +52,7 @@ app.config["DEBUG"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config['SECRET_KEY'] = 'what third kingdom'
+app.config['SECRET_KEY'] = os.getenv('WTF_SECRET')
 
 #db = SQLAlchemy(app)
 
@@ -79,7 +79,10 @@ def search():
         if event_id != 0:
             a1 = a1.where(audio.event == event_id)
 
-        #date_after = func.DATE(request.form['date_after'])
+        date_before = request.form['date_before']
+        if date_before != '':
+            a1 = a1.filter(audio.deliveryDate < date_before)
+
         date_after = request.form['date_after']
         if date_after != '':
             a1 = a1.filter(audio.deliveryDate > date_after)
