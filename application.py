@@ -1,7 +1,6 @@
 import os
 from sqlalchemy import create_engine, ForeignKey, Column, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from flask import Flask, render_template, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, DateField, SelectField
@@ -46,13 +45,13 @@ class audio_series(Base):
     __tablename__ = "audio_series"
     __table_args__ = {'autoload': True}
 
-app = Flask(__name__)
-app.config["DEBUG"] = True
+application = Flask(__name__)
+application.config["DEBUG"] = True
 
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config['SECRET_KEY'] = os.getenv('WTF_SECRET')
+application.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+application.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+application.config['SECRET_KEY'] = os.getenv('WTF_SECRET')
 
 #db = SQLAlchemy(app)
 
@@ -64,7 +63,7 @@ class SearchForm(FlaskForm):
     passage = SelectField(u'Passage:', choices = [], validate_choice=True)
     series = SelectField(u'Series:', choices = [], validate_choice=True)
 
-@app.route("/", methods=["GET", "POST"])
+@application.route("/", methods=["GET", "POST"])
 def search():
     form = SearchForm()
 
@@ -130,7 +129,7 @@ def search():
 
     return render_template('search.html', form=form)
 
-@app.route("/view")
+@application.route("/view")
 def view():
     id = request.args.get('id')
     a1 = session.query(audio).where(audio.id == int(id)).first()
@@ -147,7 +146,7 @@ class AudioForm(FlaskForm):
     series = IntegerField('series', validators=[DataRequired()])
     reference = StringField('reference', validators=[DataRequired()])
 
-@app.route("/audio", methods=["GET", "POST"])
+@application.route("/audio", methods=["GET", "POST"])
 def editaudio():
     a1 = session.query(audio).first()
     for col in audio.__table__.columns.keys():
@@ -158,3 +157,10 @@ def editaudio():
 
     form = AudioForm(obj=None)
     return render_template('upload.html', form=form)
+
+# main driver function
+if __name__ == '__main__':
+ 
+    # run() method of Flask class runs the application
+    # on the local development server.
+    application.run()
