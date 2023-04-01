@@ -9,6 +9,7 @@ MarkupSafe==2.1.2
 mysql-connector-python==8.0.29
 mysqlclient==2.1.0
 protobuf==4.22.1
+python-dotenv==1.0.0
 SQLAlchemy==1.4.36
 Werkzeug==2.2.3
 WTForms==3.0.1
