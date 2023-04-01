@@ -15,7 +15,7 @@ SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostnam
     databasename = os.getenv('DB_NAME')
 )
 
-engine = create_engine(SQLALCHEMY_DATABASE_URI)
+engine = create_engine(SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
 Base = declarative_base()
 Base.metadata.bind = engine
 session = sessionmaker(engine)()
