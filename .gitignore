@@ -1,3 +1,13 @@
 *.pyc
-__pycache__
+*~
+.*~
+.elasticbeanstalk
 .env
+__pycache__
+ebinit.sh
+virt
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

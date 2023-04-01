@@ -1,0 +1,5 @@
+#!/bin/bash -x
+# pick same region as RDS server to avoid charges
+region=us-west-1a
+eb init -p python-3.8 podcast --region $region
+eb create podcast-env --region $region --envvars DB_PASS=xxxx,DB_USER=xxxx,DB_NAME=xxxx,WTF_SECRET=xxxx,DB_HOST=xxxx
