@@ -1,19 +1,29 @@
 import os
 from sqlalchemy import create_engine, ForeignKey, Column, Integer
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response, send_file
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, DateField, SelectField
 from wtforms.validators import DataRequired
+from dotenv import dotenv_values
 
-#app.config['MYSQL_HOST'] = os.environ.get('HOST')
+config = dotenv_values('.env')
+# application.config.from_mapping(config)
+application = Flask(__name__)
+application.config["DEBUG"] = True
+application.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+if 'WTF_SECRET' not in config:
+    raise Exception("can't find secret key:" + os.getcwd())
+application.config['SECRET_KEY'] = config.get('WTF_SECRET')
 
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username = os.getenv('DB_USER'),
-    password = os.getenv('DB_PASS'),
-    hostname = os.getenv('DB_HOST'),
-    databasename = os.getenv('DB_NAME')
+    username = config.get('DB_USER'),
+    password = config.get('DB_PASS'),
+    hostname = config.get('DB_HOST'),
+    databasename = config.get('DB_NAME'),
 )
+application.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI, pool_pre_ping=True, pool_recycle=3600)
 Base = declarative_base()
@@ -45,14 +55,6 @@ class audio_series(Base):
     __tablename__ = "audio_series"
     __table_args__ = {'autoload': True}
 
-application = Flask(__name__)
-application.config["DEBUG"] = True
-
-application.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-application.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-application.config['SECRET_KEY'] = os.getenv('WTF_SECRET')
-
 #db = SQLAlchemy(app)
 
 class SearchForm(FlaskForm):
@@ -63,34 +65,37 @@ class SearchForm(FlaskForm):
     passage = SelectField(u'Passage:', choices = [], validate_choice=True)
     series = SelectField(u'Series:', choices = [], validate_choice=True)
 
-@application.route("/", methods=["GET", "POST"])
+# @application.route("/", methods=["GET", "POST"])
+@application.route("/")
+@application.route("/search")
 def search():
     form = SearchForm()
 
-    if request.method == 'POST':
+    #if request.method == 'POST':
+    if len(request.args):
         a1 = session.query(audio)
 
-        speaker_id = request.form['speaker']
-        if speaker_id != '0':
-            a1 = a1.where(audio.speaker == int(speaker_id))
+        speaker_id = int(request.args.get('speaker', '0'))
+        if speaker_id != 0:
+            a1 = a1.where(audio.speaker == speaker_id)
 
-        event_id = int(request.form['event'])
+        event_id = int(request.args.get('event', '0'))
         if event_id != 0:
             a1 = a1.where(audio.event == event_id)
 
-        series_id = int(request.form['series'])
+        series_id = int(request.args.get('series', '0'))
         if series_id != 0:
             a1 = a1.where(audio.series == series_id)
 
-        passage = request.form['passage'].strip()
+        passage = request.args.get('passage', '')
         if passage != '':
-            a1 = a1.where(audio.passage == passage)
+            a1 = a1.where(audio.passage == passage.strip())
 
-        date_before = request.form['date_before']
+        date_before = request.args.get('date_before', '')
         if date_before != '':
             a1 = a1.filter(audio.deliveryDate < date_before)
 
-        date_after = request.form['date_after']
+        date_after = request.args.get('date_after', '')
         if date_after != '':
             a1 = a1.filter(audio.deliveryDate > date_after)
 
@@ -133,7 +138,21 @@ def search():
 def view():
     id = request.args.get('id')
     a1 = session.query(audio).where(audio.id == int(id)).first()
-    return render_template('view.html', obj=a1)
+    if os.path.exists('static/audio/' + a1.filePath + '.mp3'):
+        audio_available = 'yes'
+    else:
+        audio_available = 'no'
+        # raise Exception('file doesn\'t exist: ' + 'static/audio/' + a1.filePath + '.mp3')
+    print(f'a1.path = {a1.filePath}, available = {audio_available}')
+    return render_template('view.html', obj=a1, audio_available=audio_available)
+
+@application.route("/stream")
+def stream():
+    id = request.args.get('id')
+    a1 = session.query(audio).where(audio.id == int(id)).first()
+    path = 'static/audio/' + a1.filePath + '.mp3'
+    # application.logger.info('/stream request:', request)
+    return send_file(path)
 
 class AudioForm(FlaskForm):
     id = IntegerField('name', validators=[DataRequired()])

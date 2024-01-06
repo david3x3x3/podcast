@@ -1,12 +1,17 @@
 <html><body>
-    <dl>
-        <dt>id<dd>{{obj.id}}</dd>
-        <dt>title<dd>{{obj.title | safe}}</dd>
-        <dt>deliveryDate<dd>{{obj.deliveryDate}}</dd>
-        <dt>filePath<dd>{{obj.filePath}}</dd>
-        <dt>passage<dd>{{obj.passage}} {{obj.reference}}</dd>
-        <dt>speaker<dd>{{obj.audio_speaker.name}}</dd>
-        <dt>event<dd>{{obj.audio_event.event}}</dd>
-        <dt>series<dd>{{obj.audio_series.series}}</dd>
-    </dl>
+    <!-- <p>id: {{obj.id}}</p> -->
+    <p>Title: {{obj.title | safe}}</p>
+    <p>Delivery Date: {{obj.deliveryDate}}</p>
+    <!-- <p>filePath: {{obj.filePath}}</p> -->
+    <p>Passage: {{obj.passage}} {{obj.reference}}</p>
+    <p>Speaker: {{obj.audio_speaker.name}}</p>
+    <p>Event: {{obj.audio_event.event}}</p>
+    {% if obj.series != 1 %}
+        <p>Series: <a href="search?series={{obj.series}}">{{obj.audio_series.series}}</a></p>
+    {% endif %}
+    {% if audio_available == 'yes' %}
+	<audio controls autoplay><source src="stream?id={{obj.id}}" type="audio/mpeg"></audio>
+    {% else %}
+	<p>Audio file not available</p>
+    {% endif %}
 </body></html>

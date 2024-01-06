@@ -3,14 +3,14 @@
         <table border=1 id="demo">
           {% for a in aud %}
               <tr>
-                <td><a href="/view?id={{a.id}}">{{ a.title | safe }}</a></td>
+                <td><a href="view?id={{a.id}}">{{ a.title | safe }}</a></td>
                 <td>{{ a.deliveryDate }}</td>
                 <td>{{ a.audio_speaker.name }}</td>
                 <td>{{ a.audio_event.event }}</td>
                 {% if a.series == 1 %}
                     <td>{{a.audio_series.series}}</td>
                 {% else %}
-                    <td><a href="/audio?series={{a.series}}">{{a.audio_series.series}}</a></td>
+                    <td><a href="search?series={{a.series}}">{{a.audio_series.series}}</a></td>
                 {% endif %}
               </tr>
           {% endfor %}
